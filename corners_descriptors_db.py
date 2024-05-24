@@ -42,10 +42,10 @@ class dbManager:
             filename = os.path.basename(image_path)
             address = filename
             descriptors = self.compute_descriptors(img_array)
-            find_entry = self.find_entry_by_descriptors(descriptors)
-            if find_entry is not None:
-                print(f"Entry already exists with ID {find_entry.row_id}")
-                continue
+            #find_entry = self.find_entry_by_descriptors(descriptors)
+            #if find_entry is not None:
+            #    print(f"Entry already exists with ID {find_entry.row_id}")
+            #    continue
             new_id = self.generate_id()
             entry = dbEntry(new_id, img_array, descriptors, address)
             self.db.append(entry)
