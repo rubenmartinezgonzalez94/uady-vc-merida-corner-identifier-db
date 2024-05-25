@@ -7,11 +7,11 @@ import pathlib
 
 
 class dbEntry:
-    def __init__(self, row_id, img_array, sift_descriptors, surf_descriptors, address):
+    def __init__(self, row_id, img_array, sift_descriptors, orb_descriptors, address):
         self.row_id = row_id
         self.img_array = img_array
         self.sift_descriptors = sift_descriptors
-        self.surf_descriptors = surf_descriptors
+        self.orb_descriptors = orb_descriptors
         self.address = address
 
 class dbManager:
@@ -33,7 +33,7 @@ class dbManager:
     def save_db(self):
         np.save(self.db_file, self.db)
 
-    def insert(self, image_paths, siftParam, surfParam):
+    def insert(self, image_paths, siftParam, orbParam):
         for image_path in image_paths:
             img = cv2.imread(image_path)
             if img is None:
@@ -44,13 +44,13 @@ class dbManager:
             filename = os.path.basename(image_path)
             address = filename
             sift_descriptors = self.compute_sift_descriptors(img_array, siftParam)
-            surf_descriptors = self.compute_surf_descriptors(img_array, surfParam)
+            orb_descriptors = self.compute_orb_descriptors(img_array, orbParam)
             #find_entry = self.find_entry_by_descriptors(descriptors)
             #if find_entry is not None:
             #    print(f"Entry already exists with ID {find_entry.row_id}")
             #    continue
             new_id = self.generate_id()
-            entry = dbEntry(new_id, img_array, sift_descriptors, surf_descriptors, address)
+            entry = dbEntry(new_id, img_array, sift_descriptors, orb_descriptors, address)
             self.db.append(entry)
         self.save_db()
 
@@ -90,9 +90,9 @@ class dbManager:
         keypoints, descriptors = sift.detectAndCompute(gray, None)
         return descriptors
 
-    def compute_surf_descriptors(self, image, threshold):
+    def compute_orb_descriptors(self, image, numPoints):
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        surf = cv2.SURF_create(threshold)
+        surf = cv2.ORB_create(numPoints)
         keypoints, descriptors = surf.detectAndCompute(gray, None)
         return descriptors
 
