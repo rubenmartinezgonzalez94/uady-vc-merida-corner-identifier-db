@@ -47,10 +47,6 @@ class dbManager:
             address = filename
             sift_descriptors = self.compute_sift_descriptors(img_array, siftParam)
             orb_descriptors = self.compute_orb_descriptors(img_array, orbParam)
-            # find_entry = self.find_entry_by_descriptors(descriptors)
-            # if find_entry is not None:
-            #    print(f"Entry already exists with ID {find_entry.row_id}")
-            #    continue
             new_id = self.generate_id()
             entry = dbEntry(new_id, img_array, sift_descriptors, orb_descriptors, address)
             self.db.append(entry)
@@ -175,7 +171,7 @@ class dbManager:
 
             # Encuentra el mejor parecido segun la cantidad de parejas
             numeroBuenasParejas = len(buenasParejas)
-            print(numeroBuenasParejas, len(parejas))
+            # print(numeroBuenasParejas, len(parejas))
             if maximoNumeroBuenasParejas < numeroBuenasParejas:
                 maximoNumeroBuenasParejas = numeroBuenasParejas
                 mejorParecido = entry
@@ -201,7 +197,7 @@ class dbManager:
 
             # Encuentra el mejor parecido segun la cantidad de parejas
             numeroBuenasParejas = len(buenasParejas)
-            print(numeroBuenasParejas, len(parejas))
+            # print(numeroBuenasParejas, len(parejas))
             if maximoNumeroBuenasParejas < numeroBuenasParejas:
                 maximoNumeroParejas = numeroBuenasParejas
                 mejorParecido = entry
