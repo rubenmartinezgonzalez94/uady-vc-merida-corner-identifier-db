@@ -14,6 +14,7 @@ class dbEntry:
         self.orb_descriptors = orb_descriptors
         self.address = address
 
+
 class dbManager:
     def __init__(self, db_file='./corners_descriptors_db.npy'):
         self.db_file = db_file
@@ -45,8 +46,8 @@ class dbManager:
             address = filename
             sift_descriptors = self.compute_sift_descriptors(img_array, siftParam)
             orb_descriptors = self.compute_orb_descriptors(img_array, orbParam)
-            #find_entry = self.find_entry_by_descriptors(descriptors)
-            #if find_entry is not None:
+            # find_entry = self.find_entry_by_descriptors(descriptors)
+            # if find_entry is not None:
             #    print(f"Entry already exists with ID {find_entry.row_id}")
             #    continue
             new_id = self.generate_id()
@@ -82,6 +83,7 @@ class dbManager:
             return self.db[-1].row_id + 1
         else:
             return 1
+
     def compute_sift_descriptors(self, image, numPoints):
         # This is a placeholder for the actual descriptor computation method
         # Replace with the appropriate method to compute descriptors for your images
@@ -116,9 +118,76 @@ class dbManager:
             plt.axis('off')
             plt.show()
 
+    def recognize_image(self, image, method, numPoints, umbral=None):
+        best_match = None
+        if method == 'sift':
+            descriptors = self.compute_sift_descriptors(image, numPoints)
+            best_match = self.recognize_image_sift(descriptors)
+        elif method == 'orb':
+            descriptors = self.compute_orb_descriptors(image, numPoints)
+            best_match = self.recognize_image_orb(descriptors, umbral)
+        else:
+            print("Invalid method")
+            return None
+
+        return best_match
+
+    def recognize_image_sift(self, descriptors):
+        # Crea la instancia del comparador de fuerza bruta (BFMatcher)
+        comparadorBF = cv2.BFMatcher_create()
+        # Itera las entradas en base de datos para encontrar la mejor coincidencia
+        maximoNumeroBuenasParejas = -1  # Inicializa el maximo
+        mejorParecido = None  # Inicializa el mejor parecido
+        for entry in self.db:
+            # Obtiene los descriptores de entrada
+            descriptoresEntrada = entry.sift_descriptors
+            # Encuentra las parejas encontradas
+            parejas = comparadorBF.knnMatch(descriptors, descriptoresEntrada, k=2)
+
+            # Determina si es una buena pareja
+            buenasParejas = []
+            for m, n in parejas:
+                if m.distance < 0.75 * n.distance:
+                    buenasParejas.append([m])
+
+            # Encuentra el mejor parecido segun la cantidad de parejas
+            numeroBuenasParejas = len(buenasParejas)
+            print(numeroBuenasParejas, len(parejas))
+            if maximoNumeroBuenasParejas < numeroBuenasParejas:
+                maximoNumeroBuenasParejas = numeroBuenasParejas
+                mejorParecido = entry
+        return mejorParecido
+
+    def recognize_image_orb(self, descriptors, umbral):
+        # Crea la instancia del comparador de fuerza bruta (BFMatcher)
+        comparadorBF = cv2.BFMatcher_create(cv2.NORM_HAMMING, crossCheck=True)
+        # Itera las entradas en base de datos para encontrar la mejor coincidencia
+        maximoNumeroBuenasParejas = -1  # Inicializa el maximo
+        mejorParecido = None  # Inicializa el mejor parecido
+        for entry in self.db:
+            # Obtiene los descriptores de entrada
+            descriptoresEntrada = entry.orb_descriptors
+            # Encuentra las parejas encontradas
+            parejas = comparadorBF.match(descriptors, descriptoresEntrada)
+
+            # Selecciona las mejores coincidencias
+            buenasParejas = []
+            for coincidencia in parejas:
+                if coincidencia.distance <= umbral:
+                    buenasParejas.append(coincidencia)
+
+            # Encuentra el mejor parecido segun la cantidad de parejas
+            numeroBuenasParejas = len(buenasParejas)
+            print(numeroBuenasParejas, len(parejas))
+            if maximoNumeroBuenasParejas < numeroBuenasParejas:
+                maximoNumeroParejas = numeroBuenasParejas
+                mejorParecido = entry
+
+        return mejorParecido
+
+    # Example usage:
 
 
-# Example usage:
 if __name__ == "__main__":
     db_manager = dbManager()
 
