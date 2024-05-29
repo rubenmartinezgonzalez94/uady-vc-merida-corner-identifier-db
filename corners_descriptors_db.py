@@ -4,6 +4,7 @@ import os
 import pickle
 import matplotlib.pyplot as plt
 import pathlib
+from PIL import Image
 
 
 class dbEntry:
@@ -111,12 +112,34 @@ class dbManager:
         plt.axis('off')
         plt.show()
 
-    def show_all_images(self):
-        for entry in self.db:
-            plt.figure()
-            plt.imshow(entry.img_array)
-            plt.axis('off')
-            plt.show()
+    def show_all_images(self, images_per_row=5, thumbnail_size=(64, 64)):
+        num_images = len(self.db)
+        if num_images == 0:
+            print("No hay imágenes en la base de datos.")
+            return
+
+        num_rows = (num_images + images_per_row - 1) // images_per_row
+
+        # Create a figure for the collage
+        fig, axes = plt.subplots(num_rows, images_per_row, figsize=(images_per_row, num_rows))
+
+        # Flatten the axes array for easy iteration
+        axes = axes.flatten()
+
+        for i, entry in enumerate(self.db):
+            # Resize the image to the thumbnail size
+            img = entry.img_array
+            img_thumbnail = np.array(Image.fromarray(img).resize(thumbnail_size))
+
+            # Show the image on the corresponding subplot
+            axes[i].imshow(img_thumbnail)
+            axes[i].axis('off')
+
+        # Hide any unused subplots
+        for j in range(i + 1, len(axes)):
+            axes[j].axis('off')
+
+        plt.show()
 
     def recognize_image(self, image, method, numPoints, umbral=None):
         best_match = None
@@ -192,10 +215,10 @@ if __name__ == "__main__":
     db_manager = dbManager()
 
     data_dir = pathlib.Path('./images/')
-    paths = list(data_dir.glob('*.jpg'))
+    paths = list(data_dir.glob('*.jpeg'))
     image_paths = [str(path) for path in paths]
     # Insert images
-    db_manager.insert(image_paths)
+    db_manager.insert(image_paths, 100, 100)
 
     # Delete an entry
     # db_manager.delete(1)
@@ -204,7 +227,7 @@ if __name__ == "__main__":
     # db_manager.modify(2, './images/el_aguacate.jpg')
 
     # Display database entries
-    db_manager.display_db()
+    #db_manager.display_db()
 
     # db_manager.show_image(1)
 
