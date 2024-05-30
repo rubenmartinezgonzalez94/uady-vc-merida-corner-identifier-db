@@ -42,7 +42,6 @@ class dbManager:
                 print(f"Failed to load image at {image_path}")
                 continue
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (500, 500))
             img_array = np.array(img)
             filename = os.path.basename(image_path)
             address = filename
