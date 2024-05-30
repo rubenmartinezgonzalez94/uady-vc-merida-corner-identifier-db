@@ -167,7 +167,7 @@ class dbManager:
                 mejorParecido = entry
 
         print(maximoNumeroBuenasParejas)
-        return mejorParecido
+        return mejorParecido, maximoNumeroBuenasParejas
 
     def recognize_image_orb(self, imagen, numPuntos, umbral):
         gray = cv2.cvtColor(imagen, cv2.COLOR_RGB2GRAY)
@@ -199,7 +199,7 @@ class dbManager:
                 mejorParecido = entry
 
         print(maximoNumeroBuenasParejas, mejorParecido.address)
-        return mejorParecido
+        return mejorParecido, maximoNumeroBuenasParejas
 
     # Example usage:
 
