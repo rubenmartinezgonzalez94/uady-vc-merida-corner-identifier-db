@@ -137,21 +137,11 @@ class dbManager:
 
         plt.show()
 
-    def recognize_image(self, image, method, numPoints, umbral=None):
-        best_match = None
-        if method == 'sift':
-            descriptors = self.compute_sift_descriptors(image, numPoints)
-            best_match = self.recognize_image_sift(descriptors)
-        elif method == 'orb':
-            descriptors = self.compute_orb_descriptors(image, numPoints)
-            best_match = self.recognize_image_orb(descriptors, umbral)
-        else:
-            print("Invalid method")
-            return None
+    def recognize_image_sift(self, imagen, numPuntos):
+        gray = cv2.cvtColor(imagen, cv2.COLOR_RGB2GRAY)
+        sift = cv2.SIFT_create(numPuntos)
+        keypoints, descriptors = sift.detectAndCompute(gray, None)
 
-        return best_match
-
-    def recognize_image_sift(self, descriptors):
         # Crea la instancia del comparador de fuerza bruta (BFMatcher)
         comparadorBF = cv2.BFMatcher_create()
         # Itera las entradas en base de datos para encontrar la mejor coincidencia
@@ -166,18 +156,24 @@ class dbManager:
             # Determina si es una buena pareja
             buenasParejas = []
             for m, n in parejas:
-                if m.distance < 0.75 * n.distance:
+                if m.distance < 0.80 * n.distance:
                     buenasParejas.append([m])
 
             # Encuentra el mejor parecido segun la cantidad de parejas
             numeroBuenasParejas = len(buenasParejas)
-            # print(numeroBuenasParejas, len(parejas))
+            print(numeroBuenasParejas, len(parejas), entry.address)
             if maximoNumeroBuenasParejas < numeroBuenasParejas:
                 maximoNumeroBuenasParejas = numeroBuenasParejas
                 mejorParecido = entry
+
+        print(maximoNumeroBuenasParejas)
         return mejorParecido
 
-    def recognize_image_orb(self, descriptors, umbral):
+    def recognize_image_orb(self, imagen, numPuntos, umbral):
+        gray = cv2.cvtColor(imagen, cv2.COLOR_RGB2GRAY)
+        orb = cv2.ORB_create(numPuntos)
+        keypoints, descriptors = orb.detectAndCompute(gray, None)
+
         # Crea la instancia del comparador de fuerza bruta (BFMatcher)
         comparadorBF = cv2.BFMatcher_create(cv2.NORM_HAMMING, crossCheck=True)
         # Itera las entradas en base de datos para encontrar la mejor coincidencia
@@ -197,11 +193,12 @@ class dbManager:
 
             # Encuentra el mejor parecido segun la cantidad de parejas
             numeroBuenasParejas = len(buenasParejas)
-            # print(numeroBuenasParejas, len(parejas))
+            print(numeroBuenasParejas, len(parejas), entry.address, len(descriptoresEntrada))
             if maximoNumeroBuenasParejas < numeroBuenasParejas:
                 maximoNumeroBuenasParejas = numeroBuenasParejas
                 mejorParecido = entry
 
+        print(maximoNumeroBuenasParejas, mejorParecido.address)
         return mejorParecido
 
     # Example usage:
@@ -229,12 +226,11 @@ if __name__ == "__main__":
     # db_manager.modify(2, './images/el_aguacate.jpg')
 
     # Display database entries
-    #db_manager.display_db()
+    # db_manager.display_db()
 
     # db_manager.show_image(1)
 
     db_manager.show_all_images()
-
 
     # imagenOriginal = cv2.imread('./test/cedrorecti.jpg')
     imagenOriginal = cv2.imread('./test/arcorect.jpg')
@@ -244,7 +240,7 @@ if __name__ == "__main__":
     plt.imshow(imagenGenerada)
     plt.show()
 
-    best_match = db_manager.recognize_image(imagenGenerada,'sift', 500)
+    best_match = db_manager.recognize_image(imagenGenerada, 'sift', 500)
     imagenMejorParecido = best_match.img_array
     titulo = best_match.address
 
