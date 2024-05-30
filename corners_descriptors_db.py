@@ -91,8 +91,8 @@ class dbManager:
 
     def compute_orb_descriptors(self, image, numPoints):
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        surf = cv2.ORB_create(numPoints)
-        keypoints, descriptors = surf.detectAndCompute(gray, None)
+        orb = cv2.ORB_create(numPoints)
+        keypoints, descriptors = orb.detectAndCompute(gray, None)
         return descriptors
 
     def display_db(self):
