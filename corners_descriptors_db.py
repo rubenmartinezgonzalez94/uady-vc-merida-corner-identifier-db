@@ -199,7 +199,7 @@ class dbManager:
             numeroBuenasParejas = len(buenasParejas)
             # print(numeroBuenasParejas, len(parejas))
             if maximoNumeroBuenasParejas < numeroBuenasParejas:
-                maximoNumeroParejas = numeroBuenasParejas
+                maximoNumeroBuenasParejas = numeroBuenasParejas
                 mejorParecido = entry
 
         return mejorParecido
