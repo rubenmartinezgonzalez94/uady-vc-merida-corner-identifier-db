@@ -208,6 +208,12 @@ class dbManager:
 
 
 if __name__ == "__main__":
+    import pathlib
+    import sys
+    import cv2
+    import matplotlib.pyplot as plt
+    import tensorflow
+
     db_manager = dbManager()
 
     data_dir = pathlib.Path('./images/')
@@ -228,3 +234,23 @@ if __name__ == "__main__":
     # db_manager.show_image(1)
 
     db_manager.show_all_images()
+
+
+    # imagenOriginal = cv2.imread('./test/cedrorecti.jpg')
+    imagenOriginal = cv2.imread('./test/arcorect.jpg')
+    imagenOriginal = cv2.cvtColor(imagenOriginal, cv2.COLOR_BGR2RGB)
+    imagenGenerada = imagenOriginal
+    plt.figure()
+    plt.imshow(imagenGenerada)
+    plt.show()
+
+    best_match = db_manager.recognize_image(imagenGenerada,'sift', 500)
+    imagenMejorParecido = best_match.img_array
+    titulo = best_match.address
+
+    # Mostrar la imagen con el título correspondiente
+    plt.figure()
+    plt.imshow(imagenMejorParecido)
+    plt.title(titulo)  # Añadir el título de la imagen
+    plt.axis('off')  # Ocultar los ejes
+    plt.show()
